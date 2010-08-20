@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+
+require 'pp'
+
+class RallyModule
+  def self.descendants
+      result = []
+      ObjectSpace.each_object(Class) do |klass|
+        result = result << klass if klass < self
+      end
+      result
+  end
+  
+  def print_help
+    puts "help for a module"
+  end
+end
+
+modules = {}
+
+RALLYCL_DIR=File.dirname(__FILE__)
+
+Dir.glob(File.join(RALLYCL_DIR,"rally_*")).each do |module_script|
+    require module_script
+end
+
+RallyModule.descendants.each do |rally_module| 
+  modules[rally_module.module_name] = rally_module
+end
+
+if ARGV[0] == "help"
+	puts "blah"
+elsif modules.has_key?(ARGV[0])
+  module_class = modules[ARGV.shift]
+  module_instance = module_class.new
+  
+  if not module_class.respond_to?(:commands) or module_class.commands.nil?
+    module_instance.default(ARGV)  
+  else 
+    module_commands = module_class.commands
+    command = ARGV.shift
+    if command.nil?
+      module_instance.print_help
+    else
+      method = module_instance.method(command)
+      method.call(ARGV)
+    end
+  end
+end
+
