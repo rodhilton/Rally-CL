@@ -3,6 +3,7 @@ class RallyHistoryModule < RallyModule
   require 'rally_rest_api'
   require 'colored'
   require 'pp'
+  require 'date'
 
   RALLY_CONFIG = RallyConfig.new
 
